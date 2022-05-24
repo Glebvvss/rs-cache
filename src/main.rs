@@ -2,16 +2,14 @@ use rs_cache::cache::Cache;
 
 #[tokio::main]
 async fn main() {
-    let cache = Cache::new(10);
-
-    let key = String::from("Key");
+    let shards_count = 10;
+    let cache = Cache::new(shards_count);
     cache.set(
-        key,
+        "Key",
         String::from("Val")
     );
 
-    let key = String::from("Key");
-    if let Some(value) = cache.get(&key) {
+    if let Some(value) = cache.get("Key") {
         println!("{}", value);
     }
 }
