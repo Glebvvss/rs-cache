@@ -19,14 +19,15 @@ impl ShardSet {
         }
     }
 
-    pub(crate) fn get_shard(&self, key: &String) -> Option<&Shard> {
+    pub(crate) fn get_shard(&self, key: &str) -> Option<&Shard> {
         self.shards.get(
             self.get_shard_key(key)
         )
     }
 
-    fn get_shard_key(&self, key: &String) -> usize {
-        check_sum_from_string(key) % self.shards.len()
+    fn get_shard_key(&self, key: &str) -> usize {
+        let k = key.to_string();
+        check_sum_from_string(&k) % self.shards.len()
     }
 }
 
@@ -41,16 +42,18 @@ impl Shard {
         }
     }
 
-    pub(crate) fn get(&self, key: &String) -> Option<String> {
+    pub(crate) fn get(&self, key: &str) -> Option<String> {
+        let k = key.to_string();
         let inner = self.inner.read().unwrap();
-        match inner.get(key) {
+        match inner.get(&k) {
             Some(value) => Some(value.clone()),
             None        => None
         }
     }
 
-    pub(crate) fn set(&self, key: String, value: String) {
+    pub(crate) fn set(&self, key: &str, value: String) {
+        let k = key.to_string();
         let mut inner = self.inner.write().unwrap();
-        inner.insert(key, value);
+        inner.insert(k, value);
     }
 }

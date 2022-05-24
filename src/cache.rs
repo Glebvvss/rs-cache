@@ -12,20 +12,16 @@ impl Cache {
     }
 
     pub fn get(&self, key: &str) -> Option<String> {
-        let k = key.to_string();
-
         let shard = self.shard_set
-            .get_shard(&k)
+            .get_shard(key)
             .unwrap();
 
-        shard.get(&k)
+        shard.get(key)
     }
 
     pub fn set(&self, key: &str, value: String) {
-        let k = key.to_string();
-
-        if let Some(shard) = self.shard_set.get_shard(&k) {
-            shard.set(k, value);
+        if let Some(shard) = self.shard_set.get_shard(key) {
+            shard.set(key, value);
         }
     }
 }
