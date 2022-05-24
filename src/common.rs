@@ -1,4 +1,4 @@
-pub(crate) fn check_sum_from_string(value: &String) -> usize {
+pub(crate) fn check_sum_from_str(value: &str) -> usize {
     let sum: usize = value
         .as_bytes()
         .iter()

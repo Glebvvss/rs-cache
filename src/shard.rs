@@ -1,6 +1,6 @@
 use std::sync::RwLock;
 use std::collections::HashMap;
-use super::common::check_sum_from_string;
+use super::common::check_sum_from_str;
 
 pub(crate) struct ShardSet {
     shards: Vec<Shard>
@@ -26,8 +26,7 @@ impl ShardSet {
     }
 
     fn get_shard_key(&self, key: &str) -> usize {
-        let k = key.to_string();
-        check_sum_from_string(&k) % self.shards.len()
+        check_sum_from_str(key) % self.shards.len()
     }
 }
 
