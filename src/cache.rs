@@ -1,13 +1,25 @@
 use super::shard::ShardSet;
 
+pub struct Conf {
+    shards_count: u32
+}
+
+impl Default for Conf {
+    fn default() -> Self {
+        Conf {
+            shards_count: 10
+        }
+    }
+}
+
 pub struct Cache {
     shard_set: ShardSet
 }
 
 impl Cache {
-    pub fn new(shards_count: u32) -> Cache {
+    pub fn new(conf: Conf) -> Cache {
         Cache {
-            shard_set: ShardSet::new(shards_count)
+            shard_set: ShardSet::new(conf.shards_count)
         }
     }
 
