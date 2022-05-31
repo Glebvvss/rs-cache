@@ -55,4 +55,10 @@ impl Shard {
         let mut inner = self.inner.write().unwrap();
         inner.insert(k, value);
     }
+
+    pub(crate) fn unset(&self, key: &str) {
+        let k = key.to_string();
+        let mut inner = self.inner.write().unwrap();
+        inner.remove(&k);
+    }
 }

@@ -10,4 +10,10 @@ async fn main() {
     if let Some(value) = cache.get("Key") {
         println!("{}", value);
     }
+
+    cache.unset("Key");
+    match cache.get("Key") {
+        Some(_) => println!("Found"),
+        None    => println!("Not exists")
+    };
 }

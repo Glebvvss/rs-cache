@@ -36,4 +36,10 @@ impl Cache {
             shard.set(key, value);
         }
     }
+
+    pub fn unset(&self, key: &str) {
+        if let Some(shard) = self.shard_set.get_shard(key) {
+            shard.unset(key);
+        }
+    }
 }
