@@ -1,28 +1,28 @@
 use rs_cache::gc::Gc;
 use std::sync::Arc;
-use rs_cache::cache::{Cache, Conf};
+use rs_cache::store::{Store, Conf};
 
 #[tokio::main]
 async fn main() {
-    let cache = Arc::new(
-        Cache::new(
+    let store = Arc::new(
+        Store::new(
             Conf::default()
         )
     );
 
-    let cache_gc = cache.clone();
+    let store_gc = store.clone();
     let handle = tokio::spawn(async move {
-        let gc = Gc::new(cache_gc);
+        let gc = Gc::new(store_gc);
         gc.launch().await;
     });
 
-    cache.set("Key", String::from("Val"));
-    if let Some(value) = cache.get("Key") {
+    store.set("Key", String::from("Val"));
+    if let Some(value) = store.get("Key") {
         println!("{}", value);
     }
 
-    cache.unset("Key");
-    match cache.get("Key") {
+    store.unset("Key");
+    match store.get("Key") {
         Some(_) => println!("Found"),
         None    => println!("Not exists")
     };

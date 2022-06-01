@@ -12,13 +12,13 @@ impl Default for Conf {
     }
 }
 
-pub struct Cache {
+pub struct Store {
     shard_set: ShardSet
 }
 
-impl Cache {
-    pub fn new(conf: Conf) -> Cache {
-        Cache {
+impl Store {
+    pub fn new(conf: Conf) -> Store {
+        Store {
             shard_set: ShardSet::new(conf.shards_count)
         }
     }

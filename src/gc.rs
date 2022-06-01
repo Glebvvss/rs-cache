@@ -1,15 +1,15 @@
 use std::time::Duration;
 use std::sync::Arc;
-use super::cache::Cache;
+use super::store::Store;
 
 pub struct Gc {
-    cache: Arc<Cache>
+    store: Arc<Store>
 }
 
 impl Gc {
-    pub fn new(cache: Arc<Cache>) -> Self {
+    pub fn new(store: Arc<Store>) -> Self {
         Gc {
-            cache
+            store
         }
     }
 
