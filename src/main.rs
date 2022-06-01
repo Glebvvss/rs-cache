@@ -5,9 +5,7 @@ use rs_cache::store::{Store, Conf};
 #[tokio::main]
 async fn main() {
     let store = Arc::new(
-        Store::new(
-            Conf::default()
-        )
+        Store::default()
     );
 
     let store_gc = store.clone();

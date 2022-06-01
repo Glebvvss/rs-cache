@@ -16,6 +16,12 @@ pub struct Store {
     shard_set: ShardSet
 }
 
+impl Default for Store {
+    fn default() -> Self {
+        Store::new(Conf::default())
+    }
+}
+
 impl Store {
     pub fn new(conf: Conf) -> Store {
         Store {
