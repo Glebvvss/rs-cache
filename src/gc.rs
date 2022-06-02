@@ -1,15 +1,18 @@
 use std::time::Duration;
 use std::sync::Arc;
 use super::store::Store;
+use std::collections::HashMap;
 
 pub struct Gc {
-    store: Arc<Store>
+    store: Arc<Store>,
+    lifes: HashMap<String, u8>,
 }
 
 impl Gc {
     pub fn new(store: Arc<Store>) -> Self {
         Gc {
-            store
+            store,
+            lifes: HashMap::new()
         }
     }
 
