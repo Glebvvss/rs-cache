@@ -1,6 +1,6 @@
-use rs_cache::gc::Gc;
 use std::sync::Arc;
-use rs_cache::store::{Store, Conf};
+use rs_cache::gc::Gc;
+use rs_cache::store::Store;
 
 #[tokio::main]
 async fn main() {
@@ -9,8 +9,9 @@ async fn main() {
     );
 
     let store_gc = store.clone();
+    let gc = Gc::new(store_gc);
+
     let handle = tokio::spawn(async move {
-        let gc = Gc::new(store_gc);
         gc.launch().await;
     });
 
