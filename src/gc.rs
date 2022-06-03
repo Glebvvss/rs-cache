@@ -16,6 +16,10 @@ impl Gc {
         }
     }
 
+    pub fn lifes(&self) -> Arc<RwLock<Lifes>> {
+        self.lifes.clone()
+    }
+
     pub async fn launch(&self) {
         loop {
             tokio::time::sleep(Duration::from_secs(1)).await;
