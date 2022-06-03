@@ -10,11 +10,11 @@ use std::sync::{Arc, RwLock};
 
 pub struct Cache {
     store: Arc<Store>,
-    gc:    Arc<Gc>
+    gc:    Gc
 }
 
 impl Cache {
-    pub fn new(store: Arc<Store>, gc: Arc<Gc>) -> Self {
+    pub fn new(store: Arc<Store>, gc: Gc) -> Self {
         Cache {
             store,
             gc

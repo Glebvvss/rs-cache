@@ -9,21 +9,19 @@ async fn main() {
         Store::default()
     );
 
-    let gc = Arc::new(
-        Gc::new(
-            store.clone(),
-            Arc::new(
-                RwLock::new(
-                    Lifes::new()
-                )
+    let gc = Gc::new(
+        store.clone(),
+        Arc::new(
+            RwLock::new(
+                Lifes::new()
             )
         )
     );
 
     let cache = Arc::new(
         Cache::new(
-            store.clone(),
-            gc.clone()
+            store,
+            gc
         )
     );
 
