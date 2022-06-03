@@ -42,4 +42,8 @@ impl Cache {
             .unwrap()
             .release(&key.to_string());
     }
+
+    pub async fn gc_launch(&self) {
+        self.gc.launch().await;
+    }
 }

@@ -20,10 +20,16 @@ async fn main() {
         )
     );
 
-    let cache = Cache::new(store.clone(), gc.clone());
+    let cache = Arc::new(
+        Cache::new(
+            store.clone(),
+            gc.clone()
+        )
+    );
 
-    let handle = tokio::spawn(async move {
-        gc.launch().await;
+    let cache_gc = cache.clone();
+    let handle   = tokio::spawn(async move {
+        cache_gc.gc_launch().await;
     });
 
     cache.set("Key", String::from("Val"));
