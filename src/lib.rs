@@ -13,6 +13,28 @@ pub struct Cache {
     gc:    Gc
 }
 
+impl Default for Cache {
+    fn default() -> Self {
+        let store = Arc::new(
+            Store::default()
+        );
+    
+        let gc = Gc::new(
+            store.clone(),
+            Arc::new(
+                RwLock::new(
+                    Lifes::new()
+                )
+            )
+        );
+
+        Cache::new(
+            store,
+            gc
+        )
+    }
+}
+
 impl Cache {
     pub fn new(store: Arc<Store>, gc: Gc) -> Self {
         Cache {

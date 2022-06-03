@@ -5,24 +5,8 @@ use rs_cache::gc::{Gc, Lifes};
 
 #[tokio::main]
 async fn main() {
-    let store = Arc::new(
-        Store::default()
-    );
-
-    let gc = Gc::new(
-        store.clone(),
-        Arc::new(
-            RwLock::new(
-                Lifes::new()
-            )
-        )
-    );
-
     let cache = Arc::new(
-        Cache::new(
-            store,
-            gc
-        )
+        Cache::default()
     );
 
     let cache_gc = cache.clone();
