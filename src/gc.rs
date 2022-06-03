@@ -4,33 +4,35 @@ use std::sync::{Arc, RwLock};
 use std::collections::HashMap;
 
 pub struct Gc {
-    store:   Arc<Store>,
-    lifes:   RwLock<HashMap<String, u32>>,
-}
-
-struct Lifes {
-    vec:  RwLock<Vec<(String, u32)>>,
-    map:  RwLock<HashMap<String, (u32, u32)>>,
-    free: RwLock<Vec<u32>>
+    store: Arc<Store>,
+    lifes: Arc<RwLock<Lifes>>,
 }
 
 impl Gc {
-    pub fn new(store: Arc<Store>) -> Self {
+    pub fn new(store: Arc<Store>, lifes: Arc<RwLock<Lifes>>) -> Self {
         Gc {
             store,
-            lifes: RwLock::new(HashMap::new())
+            lifes
         }
     }
 
     pub async fn launch(&self) {
         loop {
-            tokio::time::sleep(Duration::from_secs(100)).await;
+            tokio::time::sleep(Duration::from_secs(1)).await;
+            self.lifes.read().unwrap();
+            println!("GC tick");
         }
     }
 }
 
+pub struct Lifes {
+    vec:  RwLock<Vec<(String, u32)>>,
+    map:  RwLock<HashMap<String, (u32, u32)>>,
+    free: RwLock<Vec<u32>>
+}
+
 impl Lifes {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Lifes {
             vec:  RwLock::new(Vec::new()),
             map:  RwLock::new(HashMap::new()),
@@ -38,7 +40,7 @@ impl Lifes {
         }
     }
 
-    fn has(&self, key: &String) -> bool {
+    pub fn grabbed(&self, key: &String) -> bool {
         let map = self.map.read().unwrap();
         if map.is_empty() {
             return false;
@@ -50,7 +52,7 @@ impl Lifes {
         }
     }
 
-    fn expire_at(&self, key: &String) -> Option<u32> {
+    pub fn expire_at(&self, key: &String) -> Option<u32> {
         let map = self.map.read().unwrap();
         if map.is_empty() {
             return None;
@@ -62,7 +64,7 @@ impl Lifes {
         }
     }
 
-    fn grab(&self, key: &String, expiration: u32) {
+    pub fn grab(&self, key: &String, expiration: u32) {
         let mut map  = self.map.write().unwrap();
         let mut vec  = self.vec.write().unwrap();
         let mut free = self.free.write().unwrap();
@@ -82,7 +84,7 @@ impl Lifes {
         };
     }
 
-    fn release(&self, key: &String) {
+    pub fn release(&self, key: &String) {
         let mut map  = self.map.write().unwrap();
         let mut free = self.free.write().unwrap();
         if let Some((pos, _)) = map.get(key) {
