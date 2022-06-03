@@ -17,13 +17,19 @@ async fn main() {
     });
 
     store.set("Key", String::from("Val"));
-    lifes.write().unwrap().grab(&"Key".to_string(), 128);
+    lifes.write()
+         .unwrap()
+         .grab(&"Key".to_string(), 128);
+
     if let Some(value) = store.get("Key") {
         println!("{}", value);
     }
 
     store.unset("Key");
-    lifes.write().unwrap().release(&"Key".to_string());
+    lifes.write()
+         .unwrap()
+         .release(&"Key".to_string());
+
     match store.get("Key") {
         Some(_) => println!("Found"),
         None    => println!("Not exists")
