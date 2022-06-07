@@ -1,7 +1,5 @@
 use rs_cache::Cache;
-use rs_cache::store::Store;
 use std::sync::{Arc, RwLock};
-use rs_cache::gc::{Gc, Lifes};
 
 #[tokio::main]
 async fn main() {
