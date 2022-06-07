@@ -1,5 +1,5 @@
+use std::sync::Arc;
 use rs_cache::Cache;
-use std::sync::{Arc, RwLock};
 
 #[tokio::main]
 async fn main() {
