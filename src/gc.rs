@@ -6,13 +6,15 @@ use std::time::{Duration, SystemTime};
 pub struct Gc {
     store: Arc<Store>,
     lifes: Arc<RwLock<Lifes>>,
+    time:  SystemTime
 }
 
 impl Gc {
     pub fn new(store: Arc<Store>, lifes: Arc<RwLock<Lifes>>) -> Self {
         Gc {
             store,
-            lifes
+            lifes,
+            time: SystemTime::now()
         }
     }
 
@@ -21,18 +23,16 @@ impl Gc {
     }
 
     pub async fn launch(&self) {
-        let now = SystemTime::now();
-
         loop {
             tokio::time::sleep(Duration::from_secs(1)).await;
             self.lifes.read().unwrap();
 
-            match now.elapsed() {
+            match self.time.elapsed() {
                 Ok(elapsed) => {
                     println!("{}", elapsed.as_secs());
                 }
                 Err(e) => {
-                    println!("Error: {e:?}");
+                    println!("Error: {:?}", e);
                 }
             }
 
