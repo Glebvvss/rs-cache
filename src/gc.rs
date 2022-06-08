@@ -22,21 +22,41 @@ impl Gc {
         self.lifes.clone()
     }
 
+    pub fn grab(&self, key: &String, duration_secs: u32) {
+        let now = match self.time.elapsed() {
+            Ok(elapsed) => elapsed.as_secs(),
+            Err(_) => 0
+        } as u32;
+
+        let expiration = now + duration_secs;
+        let mut lifes = self.lifes.write().unwrap();
+        lifes.grab(key, expiration);
+    }
+
     pub async fn launch(&self) {
         loop {
             tokio::time::sleep(Duration::from_secs(1)).await;
-            self.lifes.read().unwrap();
 
-            match self.time.elapsed() {
-                Ok(elapsed) => {
-                    println!("{}", elapsed.as_secs());
-                }
-                Err(e) => {
-                    println!("Error: {:?}", e);
+            let now_secs = match self.time.elapsed() {
+                Ok(elapsed) => elapsed.as_secs(),
+                Err(_)      => 0
+            } as  u32;
+
+            let mut expired_keys = Vec::new();
+            {
+                let lifes = self.lifes.read().unwrap();
+                for (key, expiration) in lifes.iter() {
+                    if now_secs >= *expiration {
+                        expired_keys.push(key.to_string());
+                    }
                 }
             }
 
-            println!("GC tick");
+            let mut lifes = self.lifes.write().unwrap();
+            for key in expired_keys {
+                self.store.unset(&key);
+                lifes.release(&key);
+            }
         }
     }
 }
@@ -78,10 +98,10 @@ impl Lifes {
         }
     }
 
-    pub fn grab(&mut self, key: &String, duration_secs: u32) {
+    pub fn grab(&mut self, key: &String, expiration: u32) {
         match self.map.get(key) {
-            Some((mut position, _)) => {
-                self.map.insert(key.to_string(), (position, duration_secs));
+            Some((position, _)) => {
+                self.map.insert(key.to_string(), (*position, expiration));
             },
             None => {
                 let position = match self.free.pop() {
@@ -89,17 +109,21 @@ impl Lifes {
                     None           => self.vec.len() as u32
                 };
 
-                self.map.insert(key.to_string(), (position, duration_secs));
-                self.vec.insert(position as usize, (key.to_string(), duration_secs));
+                self.map.insert(key.to_string(), (position, expiration));
+                self.vec.insert(position as usize, (key.to_string(), expiration));
             }
         };
     }
 
     pub fn release(&mut self, key: &String) {
         if let Some((pos, _)) = self.map.get(key) {
-            let mut position = pos.clone();
+            let position = pos.clone();
             self.map.remove(key);
             self.free.push(position);
         }
+    }
+
+    pub fn iter(&self) -> &Vec<(String, u32)> {
+        &self.vec
     }
 }
