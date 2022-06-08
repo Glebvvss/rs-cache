@@ -12,7 +12,7 @@ async fn main() {
         cache_gc.gc_launch().await;
     });
 
-    cache.set("Key", String::from("Val"));
+    cache.set("Key", String::from("Val"), 60);
     if let Some(value) = cache.get("Key") {
         println!("{}", value);
     }

@@ -1,7 +1,7 @@
-use std::time::Duration;
 use super::store::Store;
 use std::sync::{Arc, RwLock};
 use std::collections::HashMap;
+use std::time::{Duration, SystemTime};
 
 pub struct Gc {
     store: Arc<Store>,
@@ -21,9 +21,21 @@ impl Gc {
     }
 
     pub async fn launch(&self) {
+        let now = SystemTime::now();
+
         loop {
             tokio::time::sleep(Duration::from_secs(1)).await;
             self.lifes.read().unwrap();
+
+            match now.elapsed() {
+                Ok(elapsed) => {
+                    println!("{}", elapsed.as_secs());
+                }
+                Err(e) => {
+                    println!("Error: {e:?}");
+                }
+            }
+
             println!("GC tick");
         }
     }
@@ -66,10 +78,10 @@ impl Lifes {
         }
     }
 
-    pub fn grab(&mut self, key: &String, expiration: u32) {
+    pub fn grab(&mut self, key: &String, duration_secs: u32) {
         match self.map.get(key) {
             Some((mut position, _)) => {
-                self.map.insert(key.to_string(), (position, expiration));
+                self.map.insert(key.to_string(), (position, duration_secs));
             },
             None => {
                 let position = match self.free.pop() {
@@ -77,8 +89,8 @@ impl Lifes {
                     None           => self.vec.len() as u32
                 };
 
-                self.map.insert(key.to_string(), (position, expiration));
-                self.vec.insert(position as usize, (key.to_string(), expiration));
+                self.map.insert(key.to_string(), (position, duration_secs));
+                self.vec.insert(position as usize, (key.to_string(), duration_secs));
             }
         };
     }

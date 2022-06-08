@@ -41,13 +41,13 @@ impl Cache {
         self.store.get(key)
     }
 
-    pub fn set(&self, key: &str, value: String) {
+    pub fn set(&self, key: &str, value: String, duration_secs: u32) {
         self.store.set(key, value);
         self.gc
             .lifes()
             .write()
             .unwrap()
-            .grab(&key.to_string(), 128);
+            .grab(&key.to_string(), duration_secs);
     }
 
     pub fn unset(&self, key: &str) {
