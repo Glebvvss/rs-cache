@@ -65,7 +65,7 @@ impl Shard {
 
 #[cfg(test)]
 mod tests {
-    use super::Shard;
+    use super::{Shard, ShardSet};
 
     #[test]
     fn shard_get_set_unset() {
@@ -78,5 +78,16 @@ mod tests {
 
         shard.unset(key);
         assert_eq!(shard.get(key), None);
+    }
+
+    #[test]
+    fn shard_set() {
+        let key   = "Key";
+        let value = "Value".to_string();
+        let shard_set = ShardSet::new(2);
+        let shard = shard_set.get_shard(key).unwrap();
+
+        shard.set(key, value.clone());
+        assert_eq!(shard.get(key), Some(value.clone()));
     }
 }
