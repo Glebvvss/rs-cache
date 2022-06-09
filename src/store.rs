@@ -49,3 +49,21 @@ impl Store {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Store;
+
+    #[test]
+    fn store_get_set_unset() {
+        let key   = "Key";
+        let value = "Value".to_string();
+        let store = Store::default();
+
+        store.set(key, value.clone());
+        assert_eq!(store.get(key), Some(value.clone()));
+
+        store.unset(key);
+        assert_eq!(store.get(key), None);
+    }
+}
