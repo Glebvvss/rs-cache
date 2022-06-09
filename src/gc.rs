@@ -10,16 +10,16 @@ pub struct Gc {
 }
 
 impl Gc {
-    pub fn new(store: Arc<Store>, lifes: Arc<RwLock<Lifes>>) -> Self {
+    pub fn new(store: Arc<Store>) -> Self {
         Gc {
             store,
-            lifes,
+            lifes: Arc::new(
+                RwLock::new(
+                    Lifes::new()
+                )
+            ),
             time: SystemTime::now()
         }
-    }
-
-    pub fn lifes(&self) -> Arc<RwLock<Lifes>> {
-        self.lifes.clone()
     }
 
     pub fn grab(&self, key: &String, duration_secs: u32) {
@@ -31,6 +31,11 @@ impl Gc {
         let expiration = now + duration_secs;
         let mut lifes = self.lifes.write().unwrap();
         lifes.grab(key, expiration);
+    }
+
+    pub fn release(&self, key: &String) {
+        let mut lifes = self.lifes.write().unwrap();
+        lifes.release(key);
     }
 
     pub async fn launch(&self) {
@@ -61,14 +66,14 @@ impl Gc {
     }
 }
 
-pub struct Lifes {
+struct Lifes {
     vec:  Vec<(String, u32)>,
     map:  HashMap<String, (u32, u32)>,
     free: Vec<u32>
 }
 
 impl Lifes {
-    pub fn new() -> Self {
+    fn new() -> Self {
         Lifes {
             vec:  Vec::new(),
             map:  HashMap::new(),
@@ -76,29 +81,7 @@ impl Lifes {
         }
     }
 
-    pub fn grabbed(&self, key: &String) -> bool {
-        if self.map.is_empty() {
-            return false;
-        }
-
-        match self.map.get(key) {
-            Some(_) => true,
-            None    => false
-        }
-    }
-
-    pub fn expire_at(&self, key: &String) -> Option<u32> {
-        if self.map.is_empty() {
-            return None;
-        }
-
-        match self.map.get(key) {
-            Some((_, expiration)) => Some(expiration.clone()),
-            None => None
-        }
-    }
-
-    pub fn grab(&mut self, key: &String, expiration: u32) {
+    fn grab(&mut self, key: &String, expiration: u32) {
         match self.map.get(key) {
             Some((position, _)) => {
                 self.map.insert(key.to_string(), (*position, expiration));
@@ -115,7 +98,7 @@ impl Lifes {
         };
     }
 
-    pub fn release(&mut self, key: &String) {
+    fn release(&mut self, key: &String) {
         if let Some((pos, _)) = self.map.get(key) {
             let position = pos.clone();
             self.map.remove(key);
@@ -123,7 +106,7 @@ impl Lifes {
         }
     }
 
-    pub fn iter(&self) -> &Vec<(String, u32)> {
+    fn iter(&self) -> &Vec<(String, u32)> {
         &self.vec
     }
 }

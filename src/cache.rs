@@ -1,6 +1,6 @@
+use std::sync::Arc;
+use crate::gc::Gc;
 use crate::store::Store;
-use crate::gc::{Gc, Lifes};
-use std::sync::{Arc, RwLock};
 
 pub struct Cache {
     store: Arc<Store>,
@@ -14,12 +14,7 @@ impl Default for Cache {
         );
     
         let gc = Gc::new(
-            store.clone(),
-            Arc::new(
-                RwLock::new(
-                    Lifes::new()
-                )
-            )
+            store.clone()
         );
 
         Cache::new(
@@ -43,17 +38,12 @@ impl Cache {
 
     pub fn set(&self, key: &str, value: String, duration_secs: u32) {
         self.store.set(key, value);
-        self.gc
-            .grab(&key.to_string(), duration_secs);
+        self.gc.grab(&key.to_string(), duration_secs);
     }
 
     pub fn unset(&self, key: &str) {
         self.store.unset(key);
-        self.gc
-            .lifes()
-            .write()
-            .unwrap()
-            .release(&key.to_string());
+        self.gc.release(&key.to_string());
     }
 
     pub async fn gc_launch(&self) {
