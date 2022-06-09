@@ -112,6 +112,29 @@ impl Lifes {
     }
 
     fn iter(&self) -> &Vec<(String, u32)> {
+        // TODO reimplement it
         &self.vec
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Lifes;
+    use std::time::Duration;
+
+    #[test]
+    fn lifes_grab_release() {
+        let key        = "Key";
+        let expiration = Duration::from_secs(120).as_secs() as u32;
+        let mut lifes  = Lifes::new();
+
+        lifes.grab(&key, expiration.clone());
+        for life in lifes.iter() {
+            assert_eq!(life, &(key.to_string(), expiration.clone()));
+        }
+
+        // TODO wait to reimplement
+        // lifes.release(&key);
+        // assert_eq!(lifes.iter().len(), 0);
     }
 }
