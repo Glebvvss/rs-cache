@@ -81,6 +81,7 @@ impl Lifes {
         }
     }
 
+    #[allow(mutable_borrow_reservation_conflict)]
     fn grab(&mut self, key: &String, expiration: u32) {
         match self.map.get(key) {
             Some((position, _)) => {
