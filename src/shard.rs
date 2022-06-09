@@ -62,3 +62,21 @@ impl Shard {
         inner.remove(&k);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Shard;
+
+    #[test]
+    fn shard_get_set_unset() {
+        let key   = "Key";
+        let value = "Value".to_string();
+        let shard = Shard::new();
+
+        shard.set(key, value.clone());
+        assert_eq!(shard.get(key), Some(value.clone()));
+
+        shard.unset(key);
+        assert_eq!(shard.get(key), None);
+    }
+}
