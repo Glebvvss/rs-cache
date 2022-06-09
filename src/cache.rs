@@ -38,12 +38,12 @@ impl Cache {
 
     pub fn set(&self, key: &str, value: String, duration_secs: u32) {
         self.store.set(key, value);
-        self.gc.grab(&key.to_string(), duration_secs);
+        self.gc.grab(key, duration_secs);
     }
 
     pub fn unset(&self, key: &str) {
         self.store.unset(key);
-        self.gc.release(&key.to_string());
+        self.gc.release(key);
     }
 
     pub async fn gc_launch(&self) {

@@ -22,7 +22,7 @@ impl Gc {
         }
     }
 
-    pub fn grab(&self, key: &String, duration_secs: u32) {
+    pub fn grab(&self, key: &str, duration_secs: u32) {
         let now = match self.time.elapsed() {
             Ok(elapsed) => elapsed.as_secs(),
             Err(_) => 0
@@ -33,7 +33,7 @@ impl Gc {
         lifes.grab(key, expiration);
     }
 
-    pub fn release(&self, key: &String) {
+    pub fn release(&self, key: &str) {
         let mut lifes = self.lifes.write().unwrap();
         lifes.release(key);
     }
@@ -82,7 +82,9 @@ impl Lifes {
     }
 
     #[allow(mutable_borrow_reservation_conflict)]
-    fn grab(&mut self, key: &String, expiration: u32) {
+    fn grab(&mut self, key_str: &str, expiration: u32) {
+        let key = &key_str.to_string();
+
         match self.map.get(key) {
             Some((position, _)) => {
                 self.map.insert(key.to_string(), (*position, expiration));
@@ -99,7 +101,9 @@ impl Lifes {
         };
     }
 
-    fn release(&mut self, key: &String) {
+    fn release(&mut self, key_str: &str) {
+        let key = &key_str.to_string();
+
         if let Some((pos, _)) = self.map.get(key) {
             let position = pos.clone();
             self.map.remove(key);
