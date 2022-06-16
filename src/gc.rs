@@ -112,8 +112,18 @@ impl Lifes {
     }
 
     fn iter(&self) -> &Vec<(String, u32)> {
-        // TODO reimplement it
         &self.vec
+    }
+}
+
+#[cfg(test)]
+impl Lifes {    
+    fn inner_map(&self) -> &HashMap<String, (u32, u32)> {
+        &self.map
+    }
+
+    fn inner_free(&self) -> &Vec<u32> {
+        &self.free
     }
 }
 
@@ -133,8 +143,9 @@ mod tests {
             assert_eq!(life, &(key.to_string(), expiration.clone()));
         }
 
-        // TODO wait to reimplement
-        // lifes.release(&key);
-        // assert_eq!(lifes.iter().len(), 0);
+        lifes.release(&key);
+        assert_eq!(lifes.iter().len(), 1);
+        assert_eq!(lifes.inner_free()[0], 0);
+        assert_eq!(lifes.inner_map().is_empty(), true);
     }
 }
