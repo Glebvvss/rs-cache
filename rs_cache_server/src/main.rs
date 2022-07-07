@@ -1,6 +1,39 @@
+#![deny(warnings)]
+use warp::Filter;
 use std::sync::Arc;
 use rs_cache::Cache;
-use std::time::Duration;
+use serde::{Deserialize};
+
+#[derive(Deserialize)]
+pub struct PostRequest {
+    pub value: String,
+    pub duration_secs: u32
+}
+
+macro_rules! get_handler {
+    ($cache:ident) => {
+        move |key: String| {
+            match $cache.get(&key[..]) {
+                Some(value) => value,
+                None        => "Not Found".to_owned()
+            }
+        }
+    }
+}
+
+macro_rules! post_handler {
+    ($cache:ident) => {
+        move |key: String, request: PostRequest| {
+            $cache.set(
+                &key[..],
+                request.value,
+                request.duration_secs
+            );
+
+            "Ok".to_owned()
+        }
+    }
+}
 
 #[tokio::main]
 async fn main() {
@@ -8,29 +41,22 @@ async fn main() {
         Cache::default()
     );
 
-    let cache_gc = cache.clone();
-    let handle   = tokio::spawn(async move {
-        cache_gc.gc_launch().await;
-    });
+    let path = warp::path!("v1" / "cache" / String);
 
-    cache.set("Key", String::from("Val"), 1);
-    if let Some(value) = cache.get("Key") {
-        println!("{}", value);
-    }
+    let cache_get = cache.clone();
+    let get_route = warp::get().and(
+        path.map(get_handler!(cache_get))
+    );
 
-    tokio::spawn(async move {
-        loop {
-            tokio::time::sleep(Duration::from_secs(1)).await;
-            match cache.get("Key") {
-                Some(value) => {
-                    println!("{}", value);
-                },
-                None => {
-                    println!("Not Found");
-                }
-            };
-        }
-    });
+    let body = warp::body::content_length_limit(1024).and(warp::body::json());
 
-    let _ = tokio::join!(handle);
+    let cache_post = cache.clone();
+    let post_route = warp::post().and(
+        path.and(body).map(post_handler!(cache_post))
+    );
+
+    let routes = get_route.or(post_route);
+    warp::serve(routes)
+        .run(([127, 0, 0, 1], 3030))
+        .await;
 }

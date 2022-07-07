@@ -6,3 +6,5 @@ edition = "2021"
 [dependencies]
 rs-cache = { path = "../rs_cache" }
 tokio = { version = "~1.18", features = ["full"] }
+warp = "0.3.0"
+serde = { version = "1.0", features = ["derive"] }
