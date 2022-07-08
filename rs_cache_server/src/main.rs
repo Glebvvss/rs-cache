@@ -41,6 +41,11 @@ async fn main() {
         Cache::default()
     );
 
+    let cache_gc = cache.clone();
+    tokio::spawn(async move {
+        cache_gc.gc_launch().await;
+    });
+
     let path = warp::path!("v1" / "cache" / String);
 
     let cache_get = cache.clone();
